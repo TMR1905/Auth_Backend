@@ -23,4 +23,4 @@ class Settings(BaseSettings):
 
 
 # Create instance - this loads values from .env
-settings = Settings()
+settings = Settings() # type: ignore[call-arg]
