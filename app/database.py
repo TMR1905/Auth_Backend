@@ -5,13 +5,15 @@ from typing import AsyncGenerator
 from app.config import settings
 
 
-# Create async engine
+
+
 if "sqlite" in settings.DATABASE_URL:
     engine = create_async_engine(
         settings.DATABASE_URL,
-        echo=settings.ECHO # Set to False in production,
-    )
+        echo=settings.ECHO  # Set to False in production
+        )
 else:
+    # Create async engine
     engine = create_async_engine(
         settings.DATABASE_URL,
         echo=settings.ECHO,  # Set to False in production
