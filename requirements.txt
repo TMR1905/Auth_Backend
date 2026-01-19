@@ -6,3 +6,6 @@ aiosqlite
 asyncpg
 pydantic_settings
 pytest
+python-jose[cryptography] 
+passlib[bcrypt]
+pyotp

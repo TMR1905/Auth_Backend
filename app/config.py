@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     ECHO: bool = False
 
+    # JWT Settings
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
 
 # Create instance - this loads values from .env
 settings = Settings()
