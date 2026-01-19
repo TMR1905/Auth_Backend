@@ -1,14 +1,20 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Get the root directory (where .env lives)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-class settings(BaseSettings):
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / ".env",
+        env_file_encoding="utf-8",
+    )
 
     # DataBase Settings
-    DATABASE_URL: str 
+    DATABASE_URL: str
     ECHO: bool = False
 
 
-
-    class Config:
-        env_file = ".env"
-
+# Create instance - this loads values from .env
+settings = Settings()

@@ -6,13 +6,19 @@ from app.config import settings
 
 
 # Create async engine
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.ECHO,  # Set to False in production
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
-)
+if "sqlite" in settings.DATABASE_URL:
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.ECHO # Set to False in production,
+    )
+else:
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.ECHO,  # Set to False in production
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+    )
 
 # Session factory
 async_session = async_sessionmaker(

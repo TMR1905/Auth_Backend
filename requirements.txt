@@ -2,3 +2,7 @@ sqlalchemy
 fastapi
 pydantic_settings
 uvicorn[standard]
+aiosqlite
+asyncpg
+pydantic_settings
+pytest
