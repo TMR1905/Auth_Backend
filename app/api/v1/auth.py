@@ -1,7 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.rate_limit import (
+    limiter,
+    RATE_LIMIT_LOGIN,
+    RATE_LIMIT_REGISTER,
+    RATE_LIMIT_2FA,
+    RATE_LIMIT_REFRESH,
+)
 
 from app.database import get_db
 from app.schemas.user import UserCreate, UserResponse
@@ -26,7 +34,9 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(RATE_LIMIT_REGISTER)
 async def register(
+    request: Request,
     user_data: UserCreate,
     db: AsyncSession = Depends(get_db),
 ):
@@ -47,7 +57,9 @@ async def register(
 
 
 @router.post("/login", response_model=Token | dict)
+@limiter.limit(RATE_LIMIT_LOGIN)
 async def login(
+    request: Request,
     login_data: LoginRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -85,7 +97,9 @@ async def login(
 
 
 @router.post("/token", response_model=Token | dict)
+@limiter.limit(RATE_LIMIT_LOGIN)
 async def login_oauth2(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
@@ -121,7 +135,9 @@ async def login_oauth2(
 
 
 @router.post("/login/2fa", response_model=Token)
+@limiter.limit(RATE_LIMIT_2FA)
 async def login_2fa(
+    request: Request,
     user_id: str,
     code_data: TwoFactorVerify,
     db: AsyncSession = Depends(get_db),
@@ -158,7 +174,9 @@ async def login_2fa(
 
 
 @router.post("/refresh", response_model=Token)
+@limiter.limit(RATE_LIMIT_REFRESH)
 async def refresh(
+    request: Request,
     token_data: TokenRefresh,
     db: AsyncSession = Depends(get_db),
 ):

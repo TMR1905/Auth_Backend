@@ -24,5 +24,8 @@ class Settings(BaseSettings):
     # Google OAuth (optional - leave empty to disable Google login)
     GOOGLE_ID: str = ""
     GOOGLE_SECRET: str = ""
+
+    # Redis (for rate limiting)
+    REDIS_URL: str = "redis://localhost:6379"
 # Create instance - this loads values from .env
 settings = Settings() # type: ignore[call-arg]

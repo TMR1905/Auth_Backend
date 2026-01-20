@@ -13,3 +13,5 @@ pyotp
 qrcode
 Pillow
 httpx
+slowapi
+redis
