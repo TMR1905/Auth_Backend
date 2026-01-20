@@ -17,7 +17,8 @@ def hash_password(password: str) -> str:
     Hash a plain text password.
     Used when: user registers or changes password.
     """
-    return pwd_context.hash(password)
+    # bcrypt has a 72-byte limit, truncate if necessary
+    return pwd_context.hash(password[:72])
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -25,7 +26,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Check if plain password matches the hashed one.
     Used when: user logs in.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    # bcrypt has a 72-byte limit, truncate to match hashing
+    return pwd_context.verify(plain_password[:72], hashed_password)
 
 
 # ============ JWT TOKEN FUNCTIONS ============

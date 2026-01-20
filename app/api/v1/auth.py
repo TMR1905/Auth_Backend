@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas.user import UserCreate, UserResponse
-from app.schemas.auth import Token, TokenRefresh
+from app.schemas.auth import Token, TokenRefresh, LoginRequest
 from app.schemas.two_factor import TwoFactorVerify
 from app.services.user_service import create_user, get_user_by_id
 from app.services.auth_service import (
@@ -41,7 +41,7 @@ async def register(
 
 @router.post("/login", response_model=Token | dict)
 async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    login_data: LoginRequest,
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -50,7 +50,7 @@ async def login(
     Returns access and refresh tokens if successful.
     If 2FA is enabled, returns `requires_2fa: true` and `user_id` instead.
     """
-    user = await authenticate_user(db, form_data.username, form_data.password)
+    user = await authenticate_user(db, login_data.email, login_data.password)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,6 +73,42 @@ async def login(
         }
 
     # No 2FA - issue tokens directly
+    tokens = await create_tokens(db, user)
+    return tokens
+
+
+@router.post("/token", response_model=Token | dict)
+async def login_oauth2(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    OAuth2 compatible login endpoint (for Swagger UI "Authorize" button).
+
+    Use email as username. This endpoint is equivalent to /login but uses
+    OAuth2 form format instead of JSON.
+    """
+    user = await authenticate_user(db, form_data.username, form_data.password)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is deactivated",
+        )
+
+    if user.two_factor_enabled:
+        return {
+            "requires_2fa": True,
+            "user_id": user.id,
+            "message": "2FA verification required",
+        }
+
     tokens = await create_tokens(db, user)
     return tokens
 
