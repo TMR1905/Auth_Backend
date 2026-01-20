@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -13,6 +14,12 @@ from app.services.auth_service import (
     refresh_access_token,
     revoke_refresh_token,
     verify_2fa_login,
+)
+from app.services.oauth_service import (
+    get_google_login_url,
+    exchange_code_for_tokens,
+    get_google_user_info,
+    get_or_create_oauth_user,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -186,3 +193,72 @@ async def logout(
             detail="Invalid refresh token",
         )
     return None
+
+
+# ============ GOOGLE OAUTH ============
+
+
+@router.get("/google/login")
+async def google_login():
+    """
+    Redirect user to Google's login page.
+
+    After login, Google will redirect back to /google/callback with an auth code.
+    """
+    login_url = get_google_login_url()
+    return RedirectResponse(url=login_url)
+
+
+@router.get("/google/callback")
+async def google_callback(
+    code: str | None = None,
+    error: str | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Handle Google OAuth callback.
+
+    Google redirects here with either:
+    - ?code=xxx (success) - exchange for tokens
+    - ?error=xxx (failure) - user denied access
+    """
+    if error:
+        # User denied access or other error
+        return RedirectResponse(url=f"/?error={error}")
+
+    if not code:
+        return RedirectResponse(url="/?error=no_code")
+
+    # Exchange code for Google tokens
+    token_data = await exchange_code_for_tokens(code)
+    if not token_data:
+        return RedirectResponse(url="/?error=token_exchange_failed")
+
+    # Get user info from Google
+    google_access_token = token_data.get("access_token")
+    if not google_access_token:
+        return RedirectResponse(url="/?error=no_access_token")
+
+    user_info = await get_google_user_info(google_access_token)
+    if not user_info:
+        return RedirectResponse(url="/?error=failed_to_get_user_info")
+
+    # Get or create user in our database
+    user = await get_or_create_oauth_user(
+        db=db,
+        provider="google",
+        provider_user_id=user_info["id"],
+        email=user_info["email"],
+    )
+
+    if not user.is_active:
+        return RedirectResponse(url="/?error=account_deactivated")
+
+    # Create our JWT tokens
+    tokens = await create_tokens(db, user)
+
+    # Redirect to frontend with tokens
+    # In production, you might want to use a more secure method (like setting HTTP-only cookies)
+    return RedirectResponse(
+        url=f"/?access_token={tokens['access_token']}&refresh_token={tokens['refresh_token']}"
+    )

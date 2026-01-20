@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-
+    # Google OAuth (optional - leave empty to disable Google login)
+    GOOGLE_ID: str = ""
+    GOOGLE_SECRET: str = ""
 # Create instance - this loads values from .env
 settings = Settings() # type: ignore[call-arg]

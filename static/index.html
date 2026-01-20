@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth System Test</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 { margin-top: 0; color: #333; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        button:hover { background: #0056b3; }
+        button.secondary { background: #6c757d; }
+        button.secondary:hover { background: #545b62; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.google {
+            background: white;
+            color: #757575;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        button.google:hover { background: #f5f5f5; }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            color: #999;
+            font-size: 12px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        .divider::before { margin-right: 10px; }
+        .divider::after { margin-left: 10px; }
+        .hidden { display: none; }
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .message.success { background: #d4edda; color: #155724; }
+        .message.error { background: #f8d7da; color: #721c24; }
+        .message.info { background: #cce5ff; color: #004085; }
+        .status {
+            text-align: center;
+            padding: 16px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .status.logged-in { background: #d4edda; }
+        .token-display {
+            font-size: 12px;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 16px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: #e9ecef;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+        }
+        .tab:first-child { border-radius: 4px 0 0 4px; }
+        .tab:last-child { border-radius: 0 4px 4px 0; }
+        .tab.active { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <div class="status" id="status">Not logged in</div>
+
+    <!-- Auth Section (Login/Register) -->
+    <div class="card" id="authSection">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('login')">Login</button>
+            <button class="tab" onclick="showTab('register')">Register</button>
+        </div>
+
+        <div id="messageBox" class="message hidden"></div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()">Login</button>
+
+            <div class="divider">or</div>
+
+            <button class="google" onclick="googleLogin()">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+            <input type="email" id="registerEmail" placeholder="Email">
+            <input type="password" id="registerPassword" placeholder="Password">
+            <button onclick="register()">Register</button>
+
+            <div class="divider">or</div>
+
+            <button class="google" onclick="googleLogin()">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- 2FA Code Input (shown when required) -->
+    <div class="card hidden" id="twoFactorSection">
+        <h2>Two-Factor Authentication</h2>
+        <div id="twoFactorMessage" class="message info">Enter the 6-digit code from your authenticator app</div>
+        <input type="text" id="twoFactorCode" placeholder="000000" maxlength="6" pattern="[0-9]*">
+        <button onclick="verify2FALogin()">Verify</button>
+        <button class="secondary" onclick="cancel2FA()">Cancel</button>
+    </div>
+
+    <!-- Logged In Section -->
+    <div class="card hidden" id="loggedInSection">
+        <h2>Welcome!</h2>
+        <div id="userInfo"></div>
+
+        <h3>2FA Settings</h3>
+        <div id="twoFactorStatus"></div>
+        <button id="setup2faBtn" onclick="setup2FA()">Setup 2FA</button>
+        <button id="disable2faBtn" class="danger hidden" onclick="show2FADisable()">Disable 2FA</button>
+
+        <hr style="margin: 20px 0;">
+        <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- 2FA Setup Section -->
+    <div class="card hidden" id="setup2FASection">
+        <h2>Setup 2FA</h2>
+        <p>Scan this QR code with your authenticator app:</p>
+        <div id="qrCode" style="text-align: center; margin: 16px 0;"></div>
+        <p style="font-size: 12px;">Or enter this secret manually: <code id="secretCode"></code></p>
+        <input type="text" id="verifyCode" placeholder="Enter 6-digit code to verify" maxlength="6">
+        <button onclick="verify2FASetup()">Verify & Enable 2FA</button>
+        <button class="secondary" onclick="cancelSetup2FA()">Cancel</button>
+    </div>
+
+    <!-- 2FA Disable Section -->
+    <div class="card hidden" id="disable2FASection">
+        <h2>Disable 2FA</h2>
+        <p>Enter your 2FA code to confirm:</p>
+        <input type="text" id="disableCode" placeholder="Enter 6-digit code" maxlength="6">
+        <button class="danger" onclick="disable2FA()">Disable 2FA</button>
+        <button class="secondary" onclick="cancelDisable2FA()">Cancel</button>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let accessToken = null;
+        let refreshToken = null;
+        let pendingUserId = null; // For 2FA login flow
+
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab:${tab === 'login' ? 'first' : 'last'}-child`).classList.add('active');
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+            hideMessage();
+        }
+
+        // Message display
+        function showMessage(text, type = 'info') {
+            const box = document.getElementById('messageBox');
+            box.textContent = text;
+            box.className = `message ${type}`;
+            box.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            document.getElementById('messageBox').classList.add('hidden');
+        }
+
+        // API helper
+        async function api(endpoint, options = {}) {
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (accessToken) {
+                headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Request failed');
+            }
+
+            return data;
+        }
+
+        // Register
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                await api('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                showMessage('Registration successful! Please login.', 'success');
+                showTab('login');
+                document.getElementById('loginEmail').value = email;
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const data = await api('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (data.requires_2fa) {
+                    // Show 2FA input
+                    pendingUserId = data.user_id;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('twoFactorSection').classList.remove('hidden');
+                } else {
+                    // Login successful
+                    handleLoginSuccess(data);
+                }
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // 2FA Login verification
+        async function verify2FALogin() {
+            const code = document.getElementById('twoFactorCode').value;
+
+            try {
+                const data = await api(`/auth/login/2fa?user_id=${pendingUserId}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ code })
+                });
+                handleLoginSuccess(data);
+                document.getElementById('twoFactorSection').classList.add('hidden');
+                document.getElementById('twoFactorCode').value = '';
+            } catch (error) {
+                document.getElementById('twoFactorMessage').textContent = error.message;
+                document.getElementById('twoFactorMessage').className = 'message error';
+            }
+        }
+
+        function cancel2FA() {
+            pendingUserId = null;
+            document.getElementById('twoFactorSection').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('twoFactorCode').value = '';
+        }
+
+        // Handle successful login
+        function handleLoginSuccess(data) {
+            accessToken = data.access_token;
+            refreshToken = data.refresh_token;
+
+            document.getElementById('status').textContent = 'Logged in';
+            document.getElementById('status').classList.add('logged-in');
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('loggedInSection').classList.remove('hidden');
+
+            check2FAStatus();
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await api('/auth/logout', {
+                    method: 'POST',
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+            } catch (error) {
+                // Ignore errors on logout
+            }
+
+            accessToken = null;
+            refreshToken = null;
+
+            document.getElementById('status').textContent = 'Not logged in';
+            document.getElementById('status').classList.remove('logged-in');
+            document.getElementById('loggedInSection').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+            hideMessage();
+        }
+
+        // Check 2FA status
+        async function check2FAStatus() {
+            try {
+                const data = await api('/auth/2fa/status');
+                const statusEl = document.getElementById('twoFactorStatus');
+                const setupBtn = document.getElementById('setup2faBtn');
+                const disableBtn = document.getElementById('disable2faBtn');
+
+                if (data.enabled) {
+                    statusEl.innerHTML = '<span style="color: green;">2FA is enabled</span>';
+                    setupBtn.classList.add('hidden');
+                    disableBtn.classList.remove('hidden');
+                } else {
+                    statusEl.innerHTML = '<span style="color: gray;">2FA is not enabled</span>';
+                    setupBtn.classList.remove('hidden');
+                    disableBtn.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Failed to check 2FA status:', error);
+            }
+        }
+
+        // Setup 2FA
+        async function setup2FA() {
+            try {
+                const data = await api('/auth/2fa/setup', { method: 'POST' });
+
+                document.getElementById('loggedInSection').classList.add('hidden');
+                document.getElementById('setup2FASection').classList.remove('hidden');
+                document.getElementById('qrCode').innerHTML = `<img src="${data.qr_code}" alt="QR Code" style="max-width: 200px;">`;
+                document.getElementById('secretCode').textContent = data.secret;
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Verify 2FA setup
+        async function verify2FASetup() {
+            const code = document.getElementById('verifyCode').value;
+
+            try {
+                await api('/auth/2fa/verify', {
+                    method: 'POST',
+                    body: JSON.stringify({ code })
+                });
+
+                document.getElementById('setup2FASection').classList.add('hidden');
+                document.getElementById('loggedInSection').classList.remove('hidden');
+                document.getElementById('verifyCode').value = '';
+                check2FAStatus();
+                alert('2FA enabled successfully!');
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function cancelSetup2FA() {
+            document.getElementById('setup2FASection').classList.add('hidden');
+            document.getElementById('loggedInSection').classList.remove('hidden');
+            document.getElementById('verifyCode').value = '';
+        }
+
+        // Disable 2FA
+        function show2FADisable() {
+            document.getElementById('loggedInSection').classList.add('hidden');
+            document.getElementById('disable2FASection').classList.remove('hidden');
+        }
+
+        async function disable2FA() {
+            const code = document.getElementById('disableCode').value;
+
+            try {
+                await api('/auth/2fa/disable', {
+                    method: 'POST',
+                    body: JSON.stringify({ code })
+                });
+
+                document.getElementById('disable2FASection').classList.add('hidden');
+                document.getElementById('loggedInSection').classList.remove('hidden');
+                document.getElementById('disableCode').value = '';
+                check2FAStatus();
+                alert('2FA disabled successfully!');
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function cancelDisable2FA() {
+            document.getElementById('disable2FASection').classList.add('hidden');
+            document.getElementById('loggedInSection').classList.remove('hidden');
+            document.getElementById('disableCode').value = '';
+        }
+
+        // Google Login
+        function googleLogin() {
+            // Redirect to Google OAuth endpoint
+            window.location.href = '/api/v1/auth/google/login';
+        }
+
+        // Check URL for tokens on page load (after Google OAuth redirect)
+        function checkUrlForTokens() {
+            const params = new URLSearchParams(window.location.search);
+
+            // Check for error
+            const error = params.get('error');
+            if (error) {
+                showMessage(`Login failed: ${error}`, 'error');
+                // Clean URL
+                window.history.replaceState({}, document.title, '/');
+                return;
+            }
+
+            // Check for tokens
+            const urlAccessToken = params.get('access_token');
+            const urlRefreshToken = params.get('refresh_token');
+
+            if (urlAccessToken && urlRefreshToken) {
+                // Login successful via Google OAuth
+                handleLoginSuccess({
+                    access_token: urlAccessToken,
+                    refresh_token: urlRefreshToken
+                });
+                // Clean URL
+                window.history.replaceState({}, document.title, '/');
+            }
+        }
+
+        // Run on page load
+        checkUrlForTokens();
+    </script>
+</body>
+</html>
