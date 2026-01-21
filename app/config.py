@@ -27,5 +27,15 @@ class Settings(BaseSettings):
 
     # Redis (for rate limiting)
     REDIS_URL: str = "redis://localhost:6379"
+
+    # Email settings (for verification emails)
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    MAIL_SERVER: str = ""
+    MAIL_PORT: int = 2525
+
+    # App URL (for email links)
+    APP_URL: str = "http://localhost:8000"
 # Create instance - this loads values from .env
 settings = Settings() # type: ignore[call-arg]

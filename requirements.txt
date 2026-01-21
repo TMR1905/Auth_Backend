@@ -15,3 +15,4 @@ Pillow
 httpx
 slowapi
 redis
+fastapi-mail

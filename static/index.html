@@ -3,220 +3,610 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth System Test</title>
+    <title>Auth System</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h2 { margin-top: 0; color: #333; }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 8px;
-        }
-        button:hover { background: #0056b3; }
-        button.secondary { background: #6c757d; }
-        button.secondary:hover { background: #545b62; }
-        button.danger { background: #dc3545; }
-        button.danger:hover { background: #c82333; }
-        button.google {
-            background: white;
-            color: #757575;
-            border: 1px solid #ddd;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            padding: 20px;
         }
-        button.google:hover { background: #f5f5f5; }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo svg {
+            width: 48px;
+            height: 48px;
+            fill: #667eea;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            border: 2px solid #e1e5eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 12px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        button.secondary:hover {
+            background: #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        button.danger:hover {
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        button.google {
+            background: white;
+            color: #374151;
+            border: 2px solid #e1e5eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        button.google:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .divider {
             display: flex;
             align-items: center;
-            margin: 16px 0;
-            color: #999;
-            font-size: 12px;
+            margin: 20px 0;
+            color: #9ca3af;
+            font-size: 13px;
         }
+
         .divider::before, .divider::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e1e5eb;
         }
-        .divider::before { margin-right: 10px; }
-        .divider::after { margin-left: 10px; }
-        .hidden { display: none; }
+
+        .divider::before { margin-right: 16px; }
+        .divider::after { margin-left: 16px; }
+
+        .hidden { display: none !important; }
+
         .message {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-        .message.success { background: #d4edda; color: #155724; }
-        .message.error { background: #f8d7da; color: #721c24; }
-        .message.info { background: #cce5ff; color: #004085; }
-        .status {
-            text-align: center;
-            padding: 16px;
-            background: #e9ecef;
-            border-radius: 4px;
+            padding: 14px 16px;
+            border-radius: 10px;
             margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
         }
-        .status.logged-in { background: #d4edda; }
-        .token-display {
-            font-size: 12px;
-            word-break: break-all;
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 8px;
+
+        .message svg {
+            flex-shrink: 0;
+            margin-top: 1px;
         }
+
+        .message.success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .message.info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .message.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
         .tabs {
             display: flex;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 4px;
         }
+
         .tab {
             flex: 1;
             padding: 12px;
             text-align: center;
-            background: #e9ecef;
+            background: transparent;
             cursor: pointer;
             border: none;
             font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            border-radius: 8px;
+            margin: 0;
+            transition: all 0.2s;
         }
-        .tab:first-child { border-radius: 4px 0 0 4px; }
-        .tab:last-child { border-radius: 0 4px 4px 0; }
-        .tab.active { background: #007bff; color: white; }
+
+        .tab:hover {
+            color: #374151;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-small {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .mt-16 { margin-top: 16px; }
+        .mb-16 { margin-bottom: 16px; }
+        .mb-24 { margin-bottom: 24px; }
+
+        /* Verification Pending Screen */
+        .verification-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .verification-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+
+        .email-highlight {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .countdown {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        /* User Profile */
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 24px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-email {
+            text-align: center;
+            color: #374151;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-badge.enabled {
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        .status-badge.disabled {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .setting-description {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        /* QR Code */
+        .qr-container {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-container img {
+            max-width: 180px;
+            border-radius: 8px;
+        }
+
+        .secret-code {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff40;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Code input */
+        .code-input {
+            letter-spacing: 8px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-    <div class="status" id="status">Not logged in</div>
-
-    <!-- Auth Section (Login/Register) -->
-    <div class="card" id="authSection">
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('login')">Login</button>
-            <button class="tab" onclick="showTab('register')">Register</button>
-        </div>
-
-        <div id="messageBox" class="message hidden"></div>
-
-        <!-- Login Form -->
-        <div id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email">
-            <input type="password" id="loginPassword" placeholder="Password">
-            <button onclick="login()">Login</button>
-
-            <div class="divider">or</div>
-
-            <button class="google" onclick="googleLogin()">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    <div class="container">
+        <!-- Auth Section (Login/Register) -->
+        <div class="card" id="authSection">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
                 </svg>
-                Continue with Google
-            </button>
+                <h1>Auth System</h1>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('login')">Sign In</button>
+                <button class="tab" onclick="showTab('register')">Sign Up</button>
+            </div>
+
+            <div id="messageBox" class="message hidden"></div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email address">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="login()" id="loginBtn">Sign In</button>
+
+                <div class="divider">or continue with</div>
+
+                <button class="google" onclick="googleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Google
+                </button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="hidden">
+                <input type="email" id="registerEmail" placeholder="Email address">
+                <input type="password" id="registerPassword" placeholder="Password (min. 8 characters)">
+                <button onclick="register()" id="registerBtn">Create Account</button>
+
+                <div class="divider">or continue with</div>
+
+                <button class="google" onclick="googleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Google
+                </button>
+
+                <p class="text-small text-center mt-16">
+                    By signing up, you agree to our Terms of Service
+                </p>
+            </div>
         </div>
 
-        <!-- Register Form -->
-        <div id="registerForm" class="hidden">
-            <input type="email" id="registerEmail" placeholder="Email">
-            <input type="password" id="registerPassword" placeholder="Password">
-            <button onclick="register()">Register</button>
-
-            <div class="divider">or</div>
-
-            <button class="google" onclick="googleLogin()">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        <!-- Email Verification Pending -->
+        <div class="card hidden" id="verificationPendingSection">
+            <div class="verification-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
-                Continue with Google
-            </button>
+            </div>
+            <h2 class="text-center">Check your email</h2>
+            <p class="subtitle text-center">
+                We've sent a verification link to<br>
+                <span class="email-highlight" id="pendingEmail">email@example.com</span>
+            </p>
+
+            <div class="message info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+                <span>Click the link in your email to verify your account. The link expires in 24 hours.</span>
+            </div>
+
+            <button onclick="resendVerification()" id="resendBtn">Resend verification email</button>
+            <p class="countdown text-center" id="resendCountdown"></p>
+
+            <button class="secondary" onclick="backToLogin()">Back to sign in</button>
         </div>
-    </div>
 
-    <!-- 2FA Code Input (shown when required) -->
-    <div class="card hidden" id="twoFactorSection">
-        <h2>Two-Factor Authentication</h2>
-        <div id="twoFactorMessage" class="message info">Enter the 6-digit code from your authenticator app</div>
-        <input type="text" id="twoFactorCode" placeholder="000000" maxlength="6" pattern="[0-9]*">
-        <button onclick="verify2FALogin()">Verify</button>
-        <button class="secondary" onclick="cancel2FA()">Cancel</button>
-    </div>
+        <!-- Email Verified Success -->
+        <div class="card hidden" id="verificationSuccessSection">
+            <div class="verification-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <h2 class="text-center">Email verified!</h2>
+            <p class="subtitle text-center">
+                Your account is ready. You can now sign in.
+            </p>
+            <button onclick="showAuthSection()">Sign In</button>
+        </div>
 
-    <!-- Logged In Section -->
-    <div class="card hidden" id="loggedInSection">
-        <h2>Welcome!</h2>
-        <div id="userInfo"></div>
+        <!-- 2FA Code Input -->
+        <div class="card hidden" id="twoFactorSection">
+            <h2>Two-factor authentication</h2>
+            <p class="subtitle">Enter the 6-digit code from your authenticator app</p>
 
-        <h3>2FA Settings</h3>
-        <div id="twoFactorStatus"></div>
-        <button id="setup2faBtn" onclick="setup2FA()">Setup 2FA</button>
-        <button id="disable2faBtn" class="danger hidden" onclick="show2FADisable()">Disable 2FA</button>
+            <div id="twoFactorMessage" class="message info hidden"></div>
 
-        <hr style="margin: 20px 0;">
-        <button class="danger" onclick="logout()">Logout</button>
-    </div>
+            <input type="text" id="twoFactorCode" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric">
+            <button onclick="verify2FALogin()" id="verify2FABtn">Verify</button>
+            <button class="secondary" onclick="cancel2FA()">Cancel</button>
+        </div>
 
-    <!-- 2FA Setup Section -->
-    <div class="card hidden" id="setup2FASection">
-        <h2>Setup 2FA</h2>
-        <p>Scan this QR code with your authenticator app:</p>
-        <div id="qrCode" style="text-align: center; margin: 16px 0;"></div>
-        <p style="font-size: 12px;">Or enter this secret manually: <code id="secretCode"></code></p>
-        <input type="text" id="verifyCode" placeholder="Enter 6-digit code to verify" maxlength="6">
-        <button onclick="verify2FASetup()">Verify & Enable 2FA</button>
-        <button class="secondary" onclick="cancelSetup2FA()">Cancel</button>
-    </div>
+        <!-- Logged In Section -->
+        <div class="card hidden" id="loggedInSection">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <p class="user-email" id="userEmail">user@example.com</p>
 
-    <!-- 2FA Disable Section -->
-    <div class="card hidden" id="disable2FASection">
-        <h2>Disable 2FA</h2>
-        <p>Enter your 2FA code to confirm:</p>
-        <input type="text" id="disableCode" placeholder="Enter 6-digit code" maxlength="6">
-        <button class="danger" onclick="disable2FA()">Disable 2FA</button>
-        <button class="secondary" onclick="cancelDisable2FA()">Cancel</button>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Two-factor authentication</div>
+                    <div class="setting-description">Add an extra layer of security</div>
+                </div>
+                <span class="status-badge disabled" id="twoFactorBadge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Off
+                </span>
+            </div>
+
+            <button id="setup2faBtn" onclick="setup2FA()">Enable 2FA</button>
+            <button id="disable2faBtn" class="secondary hidden" onclick="show2FADisable()">Disable 2FA</button>
+
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+                <button class="secondary" onclick="logout()">Sign Out</button>
+                <button class="danger" onclick="confirmDeleteAccount()">Delete Account</button>
+            </div>
+        </div>
+
+        <!-- Delete Account Confirmation -->
+        <div class="card hidden" id="deleteAccountSection">
+            <h2>Delete Account</h2>
+            <p class="subtitle">This action cannot be undone</p>
+
+            <div class="message error">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <span>All your data will be permanently deleted. This includes your account, tokens, and settings.</span>
+            </div>
+
+            <button class="danger" onclick="deleteAccount()" id="deleteAccountBtn">Yes, Delete My Account</button>
+            <button class="secondary" onclick="cancelDeleteAccount()">Cancel</button>
+        </div>
+
+        <!-- 2FA Setup Section -->
+        <div class="card hidden" id="setup2FASection">
+            <h2>Enable 2FA</h2>
+            <p class="subtitle">Scan the QR code with your authenticator app</p>
+
+            <div class="qr-container">
+                <div id="qrCode"></div>
+            </div>
+
+            <p class="text-small mb-16">Or enter this code manually:</p>
+            <p class="secret-code mb-24" id="secretCode"></p>
+
+            <input type="text" id="verifyCode" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric">
+            <button onclick="verify2FASetup()">Verify & Enable</button>
+            <button class="secondary" onclick="cancelSetup2FA()">Cancel</button>
+        </div>
+
+        <!-- 2FA Disable Section -->
+        <div class="card hidden" id="disable2FASection">
+            <h2>Disable 2FA</h2>
+            <p class="subtitle">Enter your 2FA code to confirm</p>
+
+            <div class="message warning">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                </svg>
+                <span>Disabling 2FA will make your account less secure.</span>
+            </div>
+
+            <input type="text" id="disableCode" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric">
+            <button class="danger" onclick="disable2FA()">Disable 2FA</button>
+            <button class="secondary" onclick="cancelDisable2FA()">Cancel</button>
+        </div>
     </div>
 
     <script>
         const API_BASE = '/api/v1';
-        let accessToken = null;
-        let refreshToken = null;
-        let pendingUserId = null; // For 2FA login flow
+        let accessToken = localStorage.getItem('accessToken');
+        let refreshToken = localStorage.getItem('refreshToken');
+        let pendingUserId = null;
+        let pendingEmail = localStorage.getItem('pendingEmail');
+        let resendCooldown = 0;
 
         // Tab switching
         function showTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.tab:${tab === 'login' ? 'first' : 'last'}-child`).classList.add('active');
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+            });
             document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
             document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
             hideMessage();
@@ -225,7 +615,13 @@
         // Message display
         function showMessage(text, type = 'info') {
             const box = document.getElementById('messageBox');
-            box.textContent = text;
+            const icons = {
+                success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>',
+                error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',
+                info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>',
+                warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>'
+            };
+            box.innerHTML = `${icons[type] || icons.info}<span>${text}</span>`;
             box.className = `message ${type}`;
             box.classList.remove('hidden');
         }
@@ -255,28 +651,117 @@
             return data;
         }
 
+        // Set button loading state
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (loading) {
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+                btn.innerHTML = '<span class="spinner"></span>Please wait...';
+            } else {
+                btn.disabled = false;
+                btn.textContent = btn.dataset.originalText;
+            }
+        }
+
         // Register
         async function register() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            setLoading('registerBtn', true);
 
             try {
                 await api('/auth/register', {
                     method: 'POST',
                     body: JSON.stringify({ email, password })
                 });
-                showMessage('Registration successful! Please login.', 'success');
-                showTab('login');
-                document.getElementById('loginEmail').value = email;
+
+                pendingEmail = email;
+                document.getElementById('pendingEmail').textContent = email;
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('verificationPendingSection').classList.remove('hidden');
+                startResendCooldown();
             } catch (error) {
                 showMessage(error.message, 'error');
+            } finally {
+                setLoading('registerBtn', false);
             }
+        }
+
+        // Resend verification
+        async function resendVerification() {
+            if (resendCooldown > 0) return;
+
+            setLoading('resendBtn', true);
+
+            try {
+                await api(`/auth/resend-verification?email=${encodeURIComponent(pendingEmail)}`, {
+                    method: 'POST'
+                });
+                showMessage('Verification email sent!', 'success');
+                startResendCooldown();
+            } catch (error) {
+                showMessage(error.message, 'error');
+            } finally {
+                setLoading('resendBtn', false);
+            }
+        }
+
+        function startResendCooldown() {
+            resendCooldown = 60;
+            const btn = document.getElementById('resendBtn');
+            const countdown = document.getElementById('resendCountdown');
+
+            const interval = setInterval(() => {
+                resendCooldown--;
+                if (resendCooldown <= 0) {
+                    clearInterval(interval);
+                    btn.disabled = false;
+                    countdown.textContent = '';
+                } else {
+                    btn.disabled = true;
+                    countdown.textContent = `You can resend in ${resendCooldown} seconds`;
+                }
+            }, 1000);
+        }
+
+        function backToLogin() {
+            document.getElementById('verificationPendingSection').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+            showTab('login');
+            if (pendingEmail) {
+                document.getElementById('loginEmail').value = pendingEmail;
+            }
+        }
+
+        function showAuthSection() {
+            document.getElementById('verificationSuccessSection').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+            showTab('login');
         }
 
         // Login
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            setLoading('loginBtn', true);
 
             try {
                 const data = await api('/auth/login', {
@@ -285,16 +770,25 @@
                 });
 
                 if (data.requires_2fa) {
-                    // Show 2FA input
                     pendingUserId = data.user_id;
+                    pendingEmail = email;
                     document.getElementById('authSection').classList.add('hidden');
                     document.getElementById('twoFactorSection').classList.remove('hidden');
+                    document.getElementById('twoFactorCode').focus();
                 } else {
-                    // Login successful
-                    handleLoginSuccess(data);
+                    handleLoginSuccess(data, email);
                 }
             } catch (error) {
-                showMessage(error.message, 'error');
+                if (error.message.includes('verify your email')) {
+                    pendingEmail = email;
+                    document.getElementById('pendingEmail').textContent = email;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('verificationPendingSection').classList.remove('hidden');
+                } else {
+                    showMessage(error.message, 'error');
+                }
+            } finally {
+                setLoading('loginBtn', false);
             }
         }
 
@@ -302,17 +796,29 @@
         async function verify2FALogin() {
             const code = document.getElementById('twoFactorCode').value;
 
+            if (code.length !== 6) {
+                document.getElementById('twoFactorMessage').classList.remove('hidden');
+                document.getElementById('twoFactorMessage').className = 'message error';
+                document.getElementById('twoFactorMessage').innerHTML = '<span>Please enter a 6-digit code</span>';
+                return;
+            }
+
+            setLoading('verify2FABtn', true);
+
             try {
                 const data = await api(`/auth/login/2fa?user_id=${pendingUserId}`, {
                     method: 'POST',
                     body: JSON.stringify({ code })
                 });
-                handleLoginSuccess(data);
+                handleLoginSuccess(data, pendingEmail);
                 document.getElementById('twoFactorSection').classList.add('hidden');
                 document.getElementById('twoFactorCode').value = '';
             } catch (error) {
-                document.getElementById('twoFactorMessage').textContent = error.message;
+                document.getElementById('twoFactorMessage').classList.remove('hidden');
                 document.getElementById('twoFactorMessage').className = 'message error';
+                document.getElementById('twoFactorMessage').innerHTML = `<span>${error.message}</span>`;
+            } finally {
+                setLoading('verify2FABtn', false);
             }
         }
 
@@ -321,16 +827,26 @@
             document.getElementById('twoFactorSection').classList.add('hidden');
             document.getElementById('authSection').classList.remove('hidden');
             document.getElementById('twoFactorCode').value = '';
+            document.getElementById('twoFactorMessage').classList.add('hidden');
         }
 
         // Handle successful login
-        function handleLoginSuccess(data) {
+        function handleLoginSuccess(data, email) {
             accessToken = data.access_token;
             refreshToken = data.refresh_token;
+            pendingEmail = email;
 
-            document.getElementById('status').textContent = 'Logged in';
-            document.getElementById('status').classList.add('logged-in');
-            document.getElementById('authSection').classList.add('hidden');
+            // Persist to localStorage
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            if (email) localStorage.setItem('pendingEmail', email);
+
+            // Update UI
+            document.getElementById('userAvatar').textContent = email ? email[0].toUpperCase() : 'U';
+            document.getElementById('userEmail').textContent = email || 'User';
+
+            // Hide all sections and show logged in
+            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
             document.getElementById('loggedInSection').classList.remove('hidden');
 
             check2FAStatus();
@@ -347,30 +863,37 @@
                 // Ignore errors on logout
             }
 
-            accessToken = null;
-            refreshToken = null;
-
-            document.getElementById('status').textContent = 'Not logged in';
-            document.getElementById('status').classList.remove('logged-in');
+            clearSession();
             document.getElementById('loggedInSection').classList.add('hidden');
             document.getElementById('authSection').classList.remove('hidden');
             hideMessage();
+        }
+
+        // Clear session data
+        function clearSession() {
+            accessToken = null;
+            refreshToken = null;
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('pendingEmail');
         }
 
         // Check 2FA status
         async function check2FAStatus() {
             try {
                 const data = await api('/auth/2fa/status');
-                const statusEl = document.getElementById('twoFactorStatus');
+                const badge = document.getElementById('twoFactorBadge');
                 const setupBtn = document.getElementById('setup2faBtn');
                 const disableBtn = document.getElementById('disable2faBtn');
 
                 if (data.enabled) {
-                    statusEl.innerHTML = '<span style="color: green;">2FA is enabled</span>';
+                    badge.className = 'status-badge enabled';
+                    badge.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> On';
                     setupBtn.classList.add('hidden');
                     disableBtn.classList.remove('hidden');
                 } else {
-                    statusEl.innerHTML = '<span style="color: gray;">2FA is not enabled</span>';
+                    badge.className = 'status-badge disabled';
+                    badge.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg> Off';
                     setupBtn.classList.remove('hidden');
                     disableBtn.classList.add('hidden');
                 }
@@ -386,16 +909,22 @@
 
                 document.getElementById('loggedInSection').classList.add('hidden');
                 document.getElementById('setup2FASection').classList.remove('hidden');
-                document.getElementById('qrCode').innerHTML = `<img src="${data.qr_code}" alt="QR Code" style="max-width: 200px;">`;
+                document.getElementById('qrCode').innerHTML = `<img src="${data.qr_code}" alt="QR Code">`;
                 document.getElementById('secretCode').textContent = data.secret;
+                document.getElementById('verifyCode').focus();
             } catch (error) {
-                alert(error.message);
+                showMessage(error.message, 'error');
             }
         }
 
         // Verify 2FA setup
         async function verify2FASetup() {
             const code = document.getElementById('verifyCode').value;
+
+            if (code.length !== 6) {
+                showMessage('Please enter a 6-digit code', 'error');
+                return;
+            }
 
             try {
                 await api('/auth/2fa/verify', {
@@ -407,9 +936,8 @@
                 document.getElementById('loggedInSection').classList.remove('hidden');
                 document.getElementById('verifyCode').value = '';
                 check2FAStatus();
-                alert('2FA enabled successfully!');
             } catch (error) {
-                alert(error.message);
+                showMessage(error.message, 'error');
             }
         }
 
@@ -423,10 +951,16 @@
         function show2FADisable() {
             document.getElementById('loggedInSection').classList.add('hidden');
             document.getElementById('disable2FASection').classList.remove('hidden');
+            document.getElementById('disableCode').focus();
         }
 
         async function disable2FA() {
             const code = document.getElementById('disableCode').value;
+
+            if (code.length !== 6) {
+                showMessage('Please enter a 6-digit code', 'error');
+                return;
+            }
 
             try {
                 await api('/auth/2fa/disable', {
@@ -438,9 +972,8 @@
                 document.getElementById('loggedInSection').classList.remove('hidden');
                 document.getElementById('disableCode').value = '';
                 check2FAStatus();
-                alert('2FA disabled successfully!');
             } catch (error) {
-                alert(error.message);
+                showMessage(error.message, 'error');
             }
         }
 
@@ -452,40 +985,113 @@
 
         // Google Login
         function googleLogin() {
-            // Redirect to Google OAuth endpoint
             window.location.href = '/api/v1/auth/google/login';
         }
 
-        // Check URL for tokens on page load (after Google OAuth redirect)
-        function checkUrlForTokens() {
+        // Delete Account
+        function confirmDeleteAccount() {
+            document.getElementById('loggedInSection').classList.add('hidden');
+            document.getElementById('deleteAccountSection').classList.remove('hidden');
+        }
+
+        function cancelDeleteAccount() {
+            document.getElementById('deleteAccountSection').classList.add('hidden');
+            document.getElementById('loggedInSection').classList.remove('hidden');
+        }
+
+        async function deleteAccount() {
+            setLoading('deleteAccountBtn', true);
+
+            try {
+                await api('/users/me', { method: 'DELETE' });
+
+                // Clear session and show auth section
+                clearSession();
+
+                document.getElementById('deleteAccountSection').classList.add('hidden');
+                document.getElementById('authSection').classList.remove('hidden');
+                showTab('register');
+                showMessage('Account deleted successfully', 'success');
+            } catch (error) {
+                showMessage(error.message, 'error');
+                cancelDeleteAccount();
+            } finally {
+                setLoading('deleteAccountBtn', false);
+            }
+        }
+
+        // Check URL for tokens/verification on page load
+        function checkUrlParams() {
             const params = new URLSearchParams(window.location.search);
+
+            // Check for verification token
+            const token = params.get('token');
+            if (token && window.location.pathname.includes('verify-email')) {
+                // Verification handled by API, check for success message
+            }
 
             // Check for error
             const error = params.get('error');
             if (error) {
                 showMessage(`Login failed: ${error}`, 'error');
-                // Clean URL
                 window.history.replaceState({}, document.title, '/');
                 return;
             }
 
-            // Check for tokens
+            // Check for tokens (Google OAuth redirect)
             const urlAccessToken = params.get('access_token');
             const urlRefreshToken = params.get('refresh_token');
 
             if (urlAccessToken && urlRefreshToken) {
-                // Login successful via Google OAuth
                 handleLoginSuccess({
                     access_token: urlAccessToken,
                     refresh_token: urlRefreshToken
-                });
-                // Clean URL
+                }, null);
+                window.history.replaceState({}, document.title, '/');
+            }
+
+            // Check for verification success
+            const verified = params.get('verified');
+            if (verified === 'true') {
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('verificationSuccessSection').classList.remove('hidden');
                 window.history.replaceState({}, document.title, '/');
             }
         }
 
+        // Auto-advance code inputs
+        document.querySelectorAll('.code-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+        });
+
+        // Check if already logged in on page load
+        async function initApp() {
+            // First check URL params (OAuth redirect, verification, etc.)
+            checkUrlParams();
+
+            // If we have tokens, try to restore session
+            if (accessToken && refreshToken) {
+                try {
+                    // Verify token is still valid by making a request
+                    await api('/users/me');
+                    // Token is valid, show logged in state
+                    const email = localStorage.getItem('pendingEmail');
+                    document.getElementById('userAvatar').textContent = email ? email[0].toUpperCase() : 'U';
+                    document.getElementById('userEmail').textContent = email || 'User';
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('loggedInSection').classList.remove('hidden');
+                    check2FAStatus();
+                } catch (error) {
+                    // Token is invalid, clear session
+                    clearSession();
+                }
+            }
+        }
+
         // Run on page load
-        checkUrlForTokens();
+        initApp();
     </script>
 </body>
 </html>

@@ -12,7 +12,7 @@ from app.core.rate_limit import (
 )
 
 from app.database import get_db
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate
 from app.schemas.auth import Token, TokenRefresh, LoginRequest
 from app.schemas.two_factor import TwoFactorVerify
 from app.services.user_service import create_user, get_user_by_id
@@ -29,11 +29,17 @@ from app.services.oauth_service import (
     get_google_user_info,
     get_or_create_oauth_user,
 )
+from app.services.email_service import (
+    create_verification_token,
+    send_verification_email,
+    verify_user_email,
+)
+from app.services.user_service import get_user_by_email
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED)
 @limiter.limit(RATE_LIMIT_REGISTER)
 async def register(
     request: Request,
@@ -45,10 +51,21 @@ async def register(
 
     - **email**: Valid email address (must be unique)
     - **password**: User's password
+
+    A verification email will be sent to the provided email address.
     """
     try:
         user = await create_user(db, user_data)
-        return user
+
+        # Create verification token and send email
+        token = await create_verification_token(db, user)
+        await send_verification_email(user.email, token.token)
+
+        return {
+            "message": "Registration successful. Please check your email to verify your account.",
+            "user_id": user.id,
+            "email": user.email,
+        }
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -81,6 +98,12 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is deactivated",
+        )
+
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before logging in",
         )
 
     # Check if 2FA is required
@@ -121,6 +144,12 @@ async def login_oauth2(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is deactivated",
+        )
+
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before logging in",
         )
 
     if user.two_factor_enabled:
@@ -211,6 +240,58 @@ async def logout(
             detail="Invalid refresh token",
         )
     return None
+
+
+# ============ EMAIL VERIFICATION ============
+
+
+@router.get("/verify-email")
+async def verify_email(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Verify email address using the token sent via email.
+
+    - **token**: Verification token from the email link
+    """
+    user = await verify_user_email(db, token)
+    if not user:
+        # Redirect to frontend with error
+        return RedirectResponse(url="/?error=invalid_or_expired_token")
+
+    # Redirect to frontend with success
+    return RedirectResponse(url="/?verified=true")
+
+
+@router.post("/resend-verification")
+@limiter.limit("3/hour")
+async def resend_verification(
+    request: Request,
+    email: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Resend verification email.
+
+    - **email**: Email address to resend verification to
+
+    Limited to 3 requests per hour to prevent abuse.
+    """
+    user = await get_user_by_email(db, email)
+
+    if not user:
+        # Don't reveal if email exists or not
+        return {"message": "If the email exists, a verification link has been sent."}
+
+    if user.is_verified:
+        return {"message": "Email is already verified."}
+
+    # Create new token and send email
+    token = await create_verification_token(db, user)
+    await send_verification_email(user.email, token.token)
+
+    return {"message": "If the email exists, a verification link has been sent."}
 
 
 # ============ GOOGLE OAUTH ============
